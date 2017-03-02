@@ -7,6 +7,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ngDraggable/0.1.11/ngDraggable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-local-storage/0.5.2/angular-local-storage.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="main.css">
 
@@ -16,15 +17,19 @@
 </head>
 <body ng-controller="mainCtrl">
 <div class=" container-fluid main_board">
-    <div class="row">
+
+    <div class="row" style="text-align: center">
+        <div class="col-md-12 col-xs-12 col-sm-12 col-lg-12">
+            <h2>Stend Construction DEMO</h2>
+        </div>
         <div class="col-md-4 col-xs-4 col-sm-4 col-lg-4">
             <div class="panel panel-default">
                 <div class="panel-heading">Панель управления стендом</div>
                 <div class="panel-body">
                     <div class="btn-group ">
                         <button class="btn btn-primary" ng-click="newStand()" ng-disabled="isLoaded">Новый</button>
-                        <button class="btn btn-primary">Загрузить</button>
-                        <button class="btn btn-primary" ng-disabled="isNewStand || !isLoaded">Сохранить</button>
+                        <button class="btn btn-primary" ng-click="loadFromStore()">Загрузить</button>
+                        <button class="btn btn-primary" ng-click="saveToStore()" ng-disabled="isNewStand || !isLoaded">Сохранить</button>
                         <button class="btn btn-primary" ng-click="clearCanvas()" ng-disabled="!isLoaded">Очистить
                         </button>
                     </div>
@@ -47,10 +52,15 @@
                     <div style="display: inline-block">
                         <img class="holst-button" src="../img/interface/zoom-in.png"  ng-click="setZoom(data.zoomrange+0.1)">
                     </div>
-                    <button class="btn btn-danger" ng-click="resetZoom()">Set default zoom</button>
-
-
-
+                    <button class="btn btn-primary" ng-click="resetZoom()">По умолчанию</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-xs-4 col-sm-4 col-lg-4">
+            <div class="panel panel-default" ng-if="isLoaded">
+                <div class="panel-heading">Панель отчетов</div>
+                <div class="panel-body">
+                    <button class="btn btn-primary" ng-click="viewReport()">Посмотреть стенд</button>
                 </div>
             </div>
         </div>
@@ -63,12 +73,12 @@
                         Размеры стенда
                         <form class="form-inline">
                             <div class="form-group">
-                                <input style="width: 80px;" type="number" ng-model="newStand.hgt" class="form-control"
+                                <input style="width: 80px;" type="number" min="1" max="20" step="1" ng-model="newStand.hgt" class="form-control"
                                        id="length">
                             </div>
                             X
                             <div class="form-group">
-                                <input style="width: 80px;" type="number" ng-model="newStand.wdt" class="form-control"
+                                <input style="width: 80px;" type="number"  min="1" max="20" step="1" ng-model="newStand.wdt" class="form-control"
                                        id="width">
                             </div>
                             Метров
@@ -165,10 +175,10 @@
                     </div>
                     <div class="col-md-9 col-lg-9 col-sm-9 col-xs-9 detail-coord">
                         <div>
-                            Координато по X {{selectedItem.left}}
+                            Координато по X {{selectedItem.left | number : 0}}
                         </div>
                         <div>
-                            Координато по  Y {{selectedItem.top}}
+                            Координато по  Y {{selectedItem.top | number : 0}}
                         </div>
                     </div>
                     <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 ">
@@ -178,12 +188,9 @@
                        <textarea class="boxsizingBorder" ng-model="selectedItem.comment"></textarea>
                     </div>
                     <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 ">
-                        <button class="btn btn-danger pull-left"> Удалить </button>
-                        <button class="btn btn-success pull-right"> Применить </button>
+                        <button class="btn btn-danger pull-left" ng-click="removeObject()"> Удалить </button>
+                        <button class="btn btn-success pull-right" ng-click="saveObjectComment(selectedItem.comment)"> Применить </button>
                     </div>
-
-
-
 
                 </div>
             </div>

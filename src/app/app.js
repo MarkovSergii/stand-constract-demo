@@ -1,8 +1,13 @@
 /**
  * Created by user on 24.02.2017.
  */
-let standBuilding = angular.module('standBuilding',['ngDraggable']);
+let standBuilding = angular.module('standBuilding',['ngDraggable','LocalStorageModule']);
 
+
+standBuilding.config(function (localStorageServiceProvider) {
+    localStorageServiceProvider
+        .setPrefix('stend');
+});
 
 const CANVAS_SIZE = Math.floor(window.innerWidth*0.4563984674329502)-125
 
@@ -26,18 +31,21 @@ function selectAllCanvasObjects(canvas){
 var canvasCenter = new fabric.Point(Math.floor(CANVAS_SIZE/2), Math.floor(CANVAS_SIZE/2)); // center of canvas
 
 
-let rotate = (canvas,angle) =>{
+let rotate = (canvas,angle) =>
+    new Promise((resolve,reject)=>{
+        canvas.getObjects().forEach(function (obj) {
+            var objectOrigin = new fabric.Point(obj.left, obj.top);
+            var new_loc = fabric.util.rotatePoint(objectOrigin, canvasCenter, fabric.util.degreesToRadians(angle));
+            obj.top = new_loc.y;
+            obj.left = new_loc.x;
+            obj.angle += angle; //rotate each object buy the same angle
+            canvas.renderAll();
+        });
+        selectAllCanvasObjects(canvas)
+        resolve()
+    })
 
-    canvas.getObjects().forEach(function (obj) {
-        var objectOrigin = new fabric.Point(obj.left, obj.top);
-        var new_loc = fabric.util.rotatePoint(objectOrigin, canvasCenter, fabric.util.degreesToRadians(angle));
-        obj.top = new_loc.y;
-        obj.left = new_loc.x;
-        obj.angle += angle; //rotate each object buy the same angle
-        canvas.renderAll();
-    });
-    selectAllCanvasObjects(canvas)
-};
+
 
 let createCanvas = ({height,width,type})=>
     new Promise((resolve,reject)=>{
@@ -120,7 +128,7 @@ let addItemToCanvas = ({canvas,item})=>{
 }
 
 
-let mainCtrl = ($scope)=>{
+let mainCtrl = ($scope,localStorageService)=>{
 
     $scope.isNewStand = false;
     $scope.isLoaded = false;
@@ -140,6 +148,45 @@ let mainCtrl = ($scope)=>{
             });
         }
     }
+
+    $scope.saveToStore = ()=>{
+        localStorageService.set('canvas', $scope.canvas.toJSON(['itemId']));
+        localStorageService.set('selectedItemsList', $scope.selectedItemsList);
+
+        localStorageService.set('height', $scope.newStand.hgt);
+        localStorageService.set('width', $scope.newStand.wdt);
+        localStorageService.set('type', $scope.newStand.type);
+
+
+
+    }
+
+
+
+
+    $scope.loadFromStore = ()=> {
+
+
+
+        if (!$scope.canvas)
+            createCanvas({height:localStorageService.get('height'),
+                width:localStorageService.get('width'),
+                type:localStorageService.get('type')}).then((canvas)=>
+                    {
+                        $scope.canvas = canvas;
+                        $scope.canvas.loadFromJSON(localStorageService.get('canvas'), ()=>$scope.selectedItemsList = localStorageService.get('selectedItemsList'))
+                        $scope.isLoaded = true;
+                        $scope.addCanvasListeners();
+                        $scope.canvas.renderAll();
+                    })
+        else
+        {
+            $scope.canvas.loadFromJSON(localStorageService.get('canvas'), ()=>$scope.selectedItemsList = localStorageService.get('selectedItemsList'))
+            $scope.canvas.renderAll();
+        }
+    }
+
+
 
     $scope.getObjectDetail = (id)=>{
 
@@ -227,20 +274,53 @@ let mainCtrl = ($scope)=>{
     }
 
 
+    $scope.saveObjectComment = (comment) =>{
+
+        $scope.canvas._objects = $scope.canvas._objects.map((item)=>{
+            if (item.itemId == $scope.selectedId)
+                item.comment = comment
+            return item
+        })
+    }
+
+    $scope.removeObject = () =>{
+
+        let removeId = $scope.canvas.getActiveObject().itemId;
+        $scope.rotate = true;
+
+        let removeElementIndex = -1;
+        $scope.selectedItemsList.forEach((item,i)=>{if (item.id == removeId) removeElementIndex = i});
+
+        if ($scope.selectedItemsList[removeElementIndex].count>1) $scope.selectedItemsList[removeElementIndex].count--
+        else
+            $scope.selectedItemsList.splice(removeElementIndex,1)
+
+        $scope.isObjectSelected = false;
+        $scope.canvas.getActiveObject().remove();
+        $scope.canvas.renderAll();
+        $scope.rotate = false;
+    }
+
     $scope.newStand = ()=>{
         $scope.isNewStand = true;
     }
 
     $scope.rotateToLeft = ()=>{
+        $scope.rotate = true;
         rotate($scope.canvas,270)
-        if ($scope.selectedId) $scope.selectedItem = getObjectDetail($scope.selectedId)
-        $scope.$apply();
+            .then(()=>$scope.rotate = false)
+            .then(()=>$scope.isObjectSelected = false)
+            .then(()=>$scope.$apply())
+
     }
 
     $scope.rotateToRight = ()=>{
+        $scope.rotate = true;
         rotate($scope.canvas,90)
-        if ($scope.selectedId) $scope.selectedItem = getObjectDetail($scope.selectedId)
-        $scope.$apply();
+            .then(()=>$scope.rotate = false)
+            .then(()=>$scope.isObjectSelected = false)
+            .then(()=>$scope.$apply())
+
     }
 
     $scope.newStandCancel = ()=>{
@@ -254,14 +334,19 @@ let mainCtrl = ($scope)=>{
 
     $scope.addCanvasListeners = ()=>{
         $scope.canvas.on('object:selected',(data)=>{
-            $scope.isObjectSelected = true;
-            $scope.selectedId = data.target.itemId;
-            $scope.selectedItem = $scope.getObjectDetail($scope.selectedId)
-            $scope.$apply();
+            if (!$scope.rotate){
+                console.log('selected')
+                $scope.isObjectSelected = true;
+                $scope.selectedId = data.target.itemId;
+                $scope.selectedItem = $scope.getObjectDetail($scope.selectedId)
+                $scope.$apply();
+            }
         })
         $scope.canvas.on('selection:cleared',()=>{
-            $scope.isObjectSelected = false;
-            $scope.$apply();
+            if (!$scope.rotate) {
+                $scope.isObjectSelected = false;
+                $scope.$apply();
+            }
         })
 
         $scope.canvas.on('object:moving',()=>{
