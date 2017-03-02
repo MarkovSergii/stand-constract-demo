@@ -1,12 +1,48 @@
 .main_board{
     padding-top: 30px;
 }
-
+.boxsizingBorder {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    width: 100%;
+    height: 75px;
+}
 .item-box{
     height: 542px;
     overflow: auto;
 }
-
+.detail-name{
+    padding-top: 5px ;
+    padding-buttom: 5px ;
+}
+.detail-coord{
+    padding-top: 5px ;
+    padding-buttom: 5px ;
+}
+.detail-comment{
+    padding-top: 5px ;
+    padding-buttom: 5px ;
+}
+.item-box2{
+    height: 342px;
+    overflow: auto;
+}
+.item-block{
+    position: relative;
+}
+.summ-block
+{
+    width: 75px;
+    padding: 0px;
+}
+.price-block{
+    position: absolute;
+    top: 40%;
+    left: 180px;
+    font-weight: 700;
+    margin: 0px;
+}
 .holst-button{
     width: 32px;
     height: 32px;

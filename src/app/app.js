@@ -124,22 +124,62 @@ let mainCtrl = ($scope)=>{
 
     $scope.isNewStand = false;
     $scope.isLoaded = false;
-    $scope.isObjectSelected = true;
+    $scope.isObjectSelected = false;
     $scope.search = '';
     $scope.items = items;
 
     $scope.setZoom = (newZoomLevel) => {
-        $scope.data.zoomrange = newZoomLevel;
-        let zoomLevel = newZoomLevel;
-        $scope.canvas.setZoom(zoomLevel);
+        if ((newZoomLevel>0 && newZoomLevel<2)) {
+            $scope.data.zoomrange = newZoomLevel;
+            let zoomLevel = newZoomLevel;
+            $scope.canvas.setZoom(zoomLevel);
 
-        $scope.canvas.setDimensions({
-            width: CANVAS_SIZE * zoomLevel,
-            height: CANVAS_SIZE * zoomLevel
+            $scope.canvas.setDimensions({
+                width: CANVAS_SIZE * zoomLevel,
+                height: CANVAS_SIZE * zoomLevel
+            });
+        }
+    }
+
+    $scope.getObjectDetail = (id)=>{
+
+        let item = {
+            left:0,
+            top:0,
+            name:"",
+            category:"",
+            image:"",
+            price:0,
+            comment:""
+        };
+
+        $scope.items.forEach(function (obj) {
+            if (obj.id == id)
+            {
+                item.name = obj.name;
+                item.category = obj.category;
+                item.price = obj.price;
+                item.image = obj.image;
+            }
         });
+
+
+        $scope.canvas.getObjects().forEach(function (obj) {
+            if (obj.itemId == id)
+            {
+                item.left = obj.left;
+                item.top = obj.top;
+                item.comment = obj.comment;
+            }
+        });
+
+
+        return item
+
     }
 
 
+    $scope.selectedItemsList = [];
 
     $scope.data = {range:1}
 
@@ -157,9 +197,34 @@ let mainCtrl = ($scope)=>{
 
     }
 
+    $scope.selecdesSumm = 0;
+
+    $scope.calcSelected = ()=>
+        $scope.selectedItemsList = $scope.selectedItemsList.map((item)=>{
+            item.total = item.price * item.count;
+            $scope.selecdesSumm = $scope.selecdesSumm + item.total;
+            return item
+        })
+
+
 
     $scope.onDropComplete = (data,evt) =>
+    {
+        let includesEl = -1;
         addItemToCanvas({canvas:$scope.canvas,item:data.item})
+        $scope.selectedItemsList.forEach((item,i)=> {
+            if (item.id == data.item.id ) includesEl = i
+        });
+        if (includesEl==-1)
+            {
+                data.item.count = 1;
+                $scope.selectedItemsList.push(data.item)
+            }
+        else
+           $scope.selectedItemsList[includesEl].count =$scope.selectedItemsList[includesEl].count +1;
+
+        $scope.calcSelected()
+    }
 
 
     $scope.newStand = ()=>{
@@ -168,10 +233,14 @@ let mainCtrl = ($scope)=>{
 
     $scope.rotateToLeft = ()=>{
         rotate($scope.canvas,270)
+        if ($scope.selectedId) $scope.selectedItem = getObjectDetail($scope.selectedId)
+        $scope.$apply();
     }
 
     $scope.rotateToRight = ()=>{
         rotate($scope.canvas,90)
+        if ($scope.selectedId) $scope.selectedItem = getObjectDetail($scope.selectedId)
+        $scope.$apply();
     }
 
     $scope.newStandCancel = ()=>{
@@ -185,8 +254,24 @@ let mainCtrl = ($scope)=>{
 
     $scope.addCanvasListeners = ()=>{
         $scope.canvas.on('object:selected',(data)=>{
-            console.log(data);
+            $scope.isObjectSelected = true;
+            $scope.selectedId = data.target.itemId;
+            $scope.selectedItem = $scope.getObjectDetail($scope.selectedId)
+            $scope.$apply();
         })
+        $scope.canvas.on('selection:cleared',()=>{
+            $scope.isObjectSelected = false;
+            $scope.$apply();
+        })
+
+        $scope.canvas.on('object:moving',()=>{
+            if ($scope.isObjectSelected)
+            {
+                $scope.selectedItem = $scope.getObjectDetail($scope.selectedId)
+                $scope.$apply();
+            }
+        })
+
     }
 
     $scope.newStandConfirm = ()=>

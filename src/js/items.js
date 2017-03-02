@@ -6,7 +6,8 @@ let items = [
         width:0.3,
         image:'img/items/16A.jpg',
         shema:'img/shema/16A.png',
-        category:"Электричество"
+        category:"Электричество",
+        price:10
     },
     {
         id:2,
@@ -15,7 +16,8 @@ let items = [
         width:0.5,
         image:'img/items/bar-stul.jpg',
         shema:'img/shema/bar-stul.png',
-        category:"Мебель"
+        category:"Мебель",
+        price:30
     },
     {
         id:3,
@@ -24,7 +26,8 @@ let items = [
         width:0.5,
         image:'img/items/chair.jpg',
         shema:'img/shema/chair.png',
-        category:"Мебель"
+        category:"Мебель",
+        price:40
     },
     {
         id:4,
@@ -33,7 +36,8 @@ let items = [
         width:1.0,
         image:'img/items/door.jpg',
         shema:'img/shema/door.png',
-        category:"Стендовые конструкции"
+        category:"Стендовые конструкции",
+        price:25
     },
     {
         id:5,
@@ -42,7 +46,8 @@ let items = [
         width:0.3,
         image:'img/items/lamp.jpg',
         shema:'img/shema/lamp.png',
-        category:"Электричество"
+        category:"Электричество",
+        price:20
     },
     {
         id:6,
@@ -51,7 +56,8 @@ let items = [
         width:0.1,
         image:'img/items/power-socket.jpg',
         shema:'img/shema/power-socket.png',
-        category:"Электричество"
+        category:"Электричество",
+        price:10
     },
     {
         id:6,
@@ -60,7 +66,8 @@ let items = [
         width:0.2,
         image:'img/items/spotlite.jpg',
         shema:'img/shema/spotlite.png',
-        category:"Электричество"
+        category:"Электричество",
+        price:15
     },
     {
         id:7,
@@ -69,7 +76,8 @@ let items = [
         width:0.5,
         image:'img/items/stul.jpg',
         shema:'img/shema/stul.png',
-        category:"Мебель"
+        category:"Мебель",
+        price:15
     },
     {
         id:8,
@@ -78,7 +86,8 @@ let items = [
         width:1.0,
         image:'img/items/table1.jpg',
         shema:'img/shema/table1.png',
-        category:"Мебель"
+        category:"Мебель",
+        price:35
     },
     {
         id:9,
@@ -87,7 +96,8 @@ let items = [
         width:1.0,
         image:'img/items/table2.jpg',
         shema:'img/shema/table2.png',
-        category:"Мебель"
+        category:"Мебель",
+        price:15
     },
     {
         id:10,
@@ -96,7 +106,8 @@ let items = [
         width:0.5,
         image:'img/items/tumb.jpg',
         shema:'img/shema/tumb.png',
-        category:"Стендовые конструкции"
+        category:"Стендовые конструкции",
+        price:40
     },
     {
         id:11,
@@ -105,7 +116,8 @@ let items = [
         width:1.0,
         image:'img/items/tumb-circle.jpg',
         shema:'img/shema/tumb-circle.png',
-        category:"Стендовые конструкции"
+        category:"Стендовые конструкции",
+        price:50
     },
     {
         id:12,
@@ -114,6 +126,7 @@ let items = [
         width:0.5,
         image:'img/items/tumb-glass.jpg',
         shema:'img/shema/tumb-glass.png',
-        category:"Стендовые конструкции"
+        category:"Стендовые конструкции",
+        price:60
     }
 ];

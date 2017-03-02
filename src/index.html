@@ -39,13 +39,13 @@
                     <img class="holst-button" src="../img/interface/rotate-right.png" ng-click="rotateToRight()">
 
                     <div style="display: inline-block">
-                        <img class="holst-button" src="../img/interface/zoom-out.png">
+                        <img class="holst-button" src="../img/interface/zoom-out.png" ng-click="setZoom(data.zoomrange-0.1)">
                     </div>
                     <div style="display: inline-block">
                         <input type='range' step='.1' max='2' min='0' ng-model="data.zoomrange"  ng-change="setZoom(data.zoomrange)">
                     </div>
                     <div style="display: inline-block">
-                        <img class="holst-button" src="../img/interface/zoom-in.png">
+                        <img class="holst-button" src="../img/interface/zoom-in.png"  ng-click="setZoom(data.zoomrange+0.1)">
                     </div>
                     <button class="btn btn-danger" ng-click="resetZoom()">Set default zoom</button>
 
@@ -124,9 +124,14 @@
                                         <img class="media-object item-image" ng-src="{{item.image}}" alt="...">
                                     </a>
                                 </div>
-                                <div class="media-body">
-                                    <h4 class="media-heading">{{item.name}}</h4>
-                                    {{item.category}}
+                                <div class="media-body item-block">
+                                    <div class="col-lg-9 col-md-9 col-sm-9 col-xs-9 ">
+                                        <h4 class="media-heading">{{item.name}}</h4>
+                                        {{item.category}}
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 price-block">
+                                        {{item.price}} &#8364
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -134,7 +139,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6 col-lg-6 col-sm-6 col-xs-6">
+        <div class="col-md-6 col-lg-6 col-sm-6 col-xs-6" ng-show="isLoaded">
             <div class="panel panel-default" id="canvaspanel">
                 <div class="panel-body" ng-drop="true" ng-drop-success="onDropComplete($data,$event)">
                     <div style="width:{{startPosition.width}}px; height:{{startPosition.height}}px; overflow:auto;">
@@ -146,13 +151,81 @@
             </div>
         </div>
         <div class="col-md-3 col-lg-3 col-sm-3 col-xs-3">
-            <div class="panel panel-default" ng-if="isObjectSelected">
+            <div class="panel panel-default" ng-show="isObjectSelected">
                 <div class="panel-heading"> Свойства обьекта</div>
-                <div class="panel-body"></div>
+                <div class="panel-body">
+                    <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 detail-name">
+                        <h4>{{selectedItem.name}}</h4>
+                        <div>
+                            {{selectedItem.category}}
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-lg-3 col-sm-3 col-xs-3 ">
+                        <img class="item-image" ng-src="{{selectedItem.image}}">
+                    </div>
+                    <div class="col-md-9 col-lg-9 col-sm-9 col-xs-9 detail-coord">
+                        <div>
+                            Координато по X {{selectedItem.left}}
+                        </div>
+                        <div>
+                            Координато по  Y {{selectedItem.top}}
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 ">
+                        Стоимоть одной еденицы {{selectedItem.price}} &#8364
+                    </div>
+                    <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 detail-comment">
+                       <textarea class="boxsizingBorder" ng-model="selectedItem.comment"></textarea>
+                    </div>
+                    <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 ">
+                        <button class="btn btn-danger pull-left"> Удалить </button>
+                        <button class="btn btn-success pull-right"> Применить </button>
+                    </div>
+
+
+
+
+                </div>
             </div>
-            <div class="panel panel-default" ng-if="isLoaded">
+            <div class="panel panel-default item-box2" ng-if="isLoaded">
                 <div class="panel-heading"> Список выбраных обьекта</div>
-                <div class="panel-body"></div>
+                <div class="panel-body">
+                    <div ng-if="(selectedItemsList.length == 0)">
+                        Ничего не выбрано
+                    </div>
+                    <div class="panel panel-default item" ng-repeat="item in selectedItemsList">
+                        <div class="panel-body">
+                            <div class="media">
+                                <div class="media-left">
+                                    <a>
+                                        <img class="media-object item-image" ng-src="{{item.image}}" alt="...">
+                                    </a>
+                                </div>
+                                <div class="media-body item-block">
+                                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8 ">
+                                        <h4 class="media-heading">{{item.name}}</h4>
+                                        {{item.category}}
+                                    </div>
+
+                                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 summ-block">
+                                        <div>
+                                            {{item.count || 0}} х {{item.price}}
+                                        </div>
+                                        <div style="padding-top: 20px; font-weight: 800;">
+                                            Итого
+                                        </div>
+                                        <div style="font-weight: 800;">
+                                            {{item.total}} &#8364
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div ng-if="isLoaded">
+                Всего за дополнительное оборудование <span style="font-weight: 800;">{{selecdesSumm}} &#8364 </span>
             </div>
         </div>
 
