@@ -149,14 +149,18 @@ let mainCtrl = ($scope,localStorageService)=>{
         }
     }
 
+    $scope.viewReport = ()=>{
+        alert('DEMO MODE');
+    }
+
     $scope.saveToStore = ()=>{
-        localStorageService.set('canvas', $scope.canvas.toJSON(['itemId']));
+        localStorageService.set('canvas', $scope.canvas.toJSON(['itemId','comment','selectable']));
         localStorageService.set('selectedItemsList', $scope.selectedItemsList);
 
         localStorageService.set('height', $scope.newStand.hgt);
         localStorageService.set('width', $scope.newStand.wdt);
         localStorageService.set('type', $scope.newStand.type);
-
+        alert('Сохранино');
 
 
     }
@@ -169,20 +173,42 @@ let mainCtrl = ($scope,localStorageService)=>{
 
 
         if (!$scope.canvas)
+        {
+            console.log({height:localStorageService.get('height'),
+                width:localStorageService.get('width'),
+                type:localStorageService.get('type')})
             createCanvas({height:localStorageService.get('height'),
                 width:localStorageService.get('width'),
-                type:localStorageService.get('type')}).then((canvas)=>
-                    {
+                type:localStorageService.get('type')})
+                    .then((canvas)=>{
                         $scope.canvas = canvas;
-                        $scope.canvas.loadFromJSON(localStorageService.get('canvas'), ()=>$scope.selectedItemsList = localStorageService.get('selectedItemsList'))
-                        $scope.isLoaded = true;
-                        $scope.addCanvasListeners();
-                        $scope.canvas.renderAll();
+                        $scope.startPosition = {
+                            height:$('#canvaspanel')[0].clientHeight-30,
+                            width:$('#canvaspanel')[0].clientWidth-30
+                        }
+                        $scope.canvas.loadFromJSON(localStorageService.get('canvas'), ()=>{
+                            $scope.selectedItemsList = localStorageService.get('selectedItemsList')
+                            $scope.canvas.renderAll.bind($scope.canvas);
+                            $scope.isLoaded = true;
+                            $scope.addCanvasListeners();
+                            $('#canvaspanel').click();
+                            $scope.$apply()
+                            alert('Загружено');
+
+                        })
                     })
+        }
         else
         {
-            $scope.canvas.loadFromJSON(localStorageService.get('canvas'), ()=>$scope.selectedItemsList = localStorageService.get('selectedItemsList'))
-            $scope.canvas.renderAll();
+            $scope.canvas.loadFromJSON(localStorageService.get('canvas'), ()=>{
+                $scope.selectedItemsList = localStorageService.get('selectedItemsList')
+                $scope.canvas.renderAll.bind($scope.canvas);
+                $scope.isLoaded = true;
+                alert('Загружено');
+                $scope.canvas.setZoom(1);
+                $scope.$apply()
+            },()=>console.log)
+
         }
     }
 
@@ -329,7 +355,7 @@ let mainCtrl = ($scope,localStorageService)=>{
     
     $scope.clearCanvas = ()=>{
         $scope.isLoaded = false;
-        $scope.canvas.dispose();
+        $scope.canvas.clear();
     }
 
     $scope.addCanvasListeners = ()=>{
